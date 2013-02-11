@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.version       = Skrollr::Rails::VERSION
   s.authors       = ['Nick Reed']
   s.email         = ['reednj77@gmail.com']
-  s.description   = %q{Integrate the skrollr javascript library with the Rails asset pipeline}
+  s.description   = %q{Integrates the skrollr javascript library with the Rails asset pipeline}
   s.summary       = %q{Skrollr is a stand-alone parallax scrolling library for mobile and desktop.  This gem integrates skrollr with the Rails asset pipeline for ease of use and version control.}
   s.homepage      = 'https://github.com/reednj77/skrollr-rails'
 
