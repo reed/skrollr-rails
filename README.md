@@ -39,15 +39,6 @@ For IE < 9, include it after the core using conditional comments. The plugin mak
 //= require skrollr.ie
 ```
 
-##### Skrollr mobile
-
-Includes iScroll and a bridge script which initializes iScroll and makes it work with skrollr. Include it after the core when you need mobile support.
-
-```javascript
-//= require skrollr
-//= require skrollr.mobile
-```
-
 ##### Skrollr menu plugin
 
 This plugin makes hashlinks scroll nicely to their target position.
