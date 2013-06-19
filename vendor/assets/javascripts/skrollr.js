@@ -19,7 +19,7 @@
 		init: function(options) {
 			return _instance || new Skrollr(options);
 		},
-		VERSION: '0.6.5'
+		VERSION: '0.6.8'
 	};
 
 	//Minify optimization.
@@ -50,7 +50,7 @@
 	var DEFAULT_DURATION = 1000;//ms
 	var MOBILE_DECELERATION = 0.0006;//pixel/ms²
 
-	var SMOOTH_SCROLLING_DURATION = 200;
+	var DEFAULT_SMOOTH_SCROLLING_DURATION = 200;//ms
 
 	var ANCHOR_START = 'start';
 	var ANCHOR_END = 'end';
@@ -227,7 +227,7 @@
 			}
 		}
 
-		_edgeStrategy = options.edgeStrategy || 'ease';
+		_edgeStrategy = options.edgeStrategy || 'set';
 
 		_listeners = {
 			//Function to be called right before rendering.
@@ -245,6 +245,7 @@
 		}
 
 		_smoothScrollingEnabled = options.smoothScrolling !== false;
+		_smoothScrollingDuration = options.smoothScrollingDuration || DEFAULT_SMOOTH_SCROLLING_DURATION;
 
 		//Dummy object. Will be overwritten in the _render method when smooth scrolling is calculated.
 		_smoothScrolling = {
@@ -558,7 +559,7 @@
 			//That's were we actually "scroll" on mobile.
 			if(_skrollrBody) {
 				//Set the transform ("scroll it").
-				_setStyle(_skrollrBody, 'transform', 'translate(0, ' + -(_mobileOffset) + 'px) ' + _translateZ);
+				skrollr.setStyle(_skrollrBody, 'transform', 'translate(0, ' + -(_mobileOffset) + 'px) ' + _translateZ);
 			}
 		} else {
 			window.scrollTo(0, top);
@@ -805,6 +806,11 @@
 					case 'reset':
 						_reset(element);
 						continue;
+					case 'ease':
+						//Handle this case like it would be exactly at first/last keyframe and just pass it on.
+						frame = firstOrLastFrame.frame;
+						break;
+					default:
 					case 'set':
 						var props = firstOrLastFrame.props;
 
@@ -812,16 +818,11 @@
 							if(hasProp.call(props, key)) {
 								value = _interpolateString(props[key].value);
 
-								_setStyle(element, key, value);
+								skrollr.setStyle(element, key, value);
 							}
 						}
 
 						continue;
-					default:
-					case 'ease':
-						//Handle this case like it would be exactly at first/last keyframe and just pass it on.
-						frame = firstOrLastFrame.frame;
-						break;
 				}
 			} else {
 				//Did we handle an edge last time?
@@ -852,7 +853,7 @@
 
 							value = _interpolateString(value);
 
-							_setStyle(element, key, value);
+							skrollr.setStyle(element, key, value);
 						}
 					}
 
@@ -901,14 +902,14 @@
 					topDiff: renderTop - _lastTop,
 					targetTop: renderTop,
 					startTime: _lastRenderCall,
-					endTime: _lastRenderCall + SMOOTH_SCROLLING_DURATION
+					endTime: _lastRenderCall + _smoothScrollingDuration
 				};
 			}
 
 			//Interpolate the internal scroll position (not the actual scrollbar).
 			if(now <= _smoothScrolling.endTime) {
 				//Map the current progress to the new progress using easing function.
-				progress = easings.sqrt((now - _smoothScrolling.startTime) / SMOOTH_SCROLLING_DURATION);
+				progress = easings.sqrt((now - _smoothScrolling.startTime) / _smoothScrollingDuration);
 
 				renderTop = (_smoothScrolling.startTop + progress * _smoothScrolling.topDiff) | 0;
 			}
@@ -1172,7 +1173,7 @@
 	 */
 	var _detect3DTransforms = function() {
 		_translateZ = 'translateZ(0)';
-		_setStyle(_skrollrBody, 'transform', _translateZ);
+		skrollr.setStyle(_skrollrBody, 'transform', _translateZ);
 
 		var computedStyle = getStyle(_skrollrBody);
 		var computedTransform = computedStyle.getPropertyValue('transform');
@@ -1187,7 +1188,7 @@
 	/**
 	 * Set the CSS property on the given element. Sets prefixed properties as well.
 	 */
-	var _setStyle = skrollr.setStyle = function(el, prop, val) {
+	skrollr.setStyle = function(el, prop, val) {
 		var style = el.style;
 
 		//Camel case.
@@ -1437,6 +1438,8 @@
 	var _scrollAnimation;
 
 	var _smoothScrollingEnabled;
+
+	var _smoothScrollingDuration;
 
 	//Will contain settins for smooth scrolling if enabled.
 	var _smoothScrolling;
