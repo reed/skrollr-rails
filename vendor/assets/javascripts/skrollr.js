@@ -19,7 +19,7 @@
 		init: function(options) {
 			return _instance || new Skrollr(options);
 		},
-		VERSION: '0.6.8'
+		VERSION: '0.6.9'
 	};
 
 	//Minify optimization.
@@ -147,7 +147,7 @@
 			requestAnimFrame = function(callback) {
 				//How long did it take to render?
 				var deltaTime = _now() - lastTime;
-				var delay = Math.max(0, 33 - deltaTime);
+				var delay = Math.max(0, 1000 / 60 - deltaTime);
 
 				window.setTimeout(function() {
 					lastTime = _now();
@@ -555,12 +555,6 @@
 
 		if(_isMobile) {
 			_mobileOffset = Math.min(Math.max(top, 0), _maxKeyFrame);
-
-			//That's were we actually "scroll" on mobile.
-			if(_skrollrBody) {
-				//Set the transform ("scroll it").
-				skrollr.setStyle(_skrollrBody, 'transform', 'translate(0, ' + -(_mobileOffset) + 'px) ' + _translateZ);
-			}
 		} else {
 			window.scrollTo(0, top);
 		}
@@ -622,6 +616,8 @@
 						initialElement.blur();
 					}
 
+					_instance.stopAnimateTo();
+
 					initialElement = e.target;
 					initialTouchY = lastTouchY = currentTouchY;
 					initialTouchX = currentTouchX;
@@ -632,7 +628,7 @@
 					deltaY = currentTouchY - lastTouchY;
 					deltaTime = currentTouchTime - lastTouchTime;
 
-					_instance.setScrollTop(_mobileOffset - deltaY);
+					_instance.setScrollTop(_mobileOffset - deltaY, true);
 
 					lastTouchY = currentTouchY;
 					lastTouchTime = currentTouchTime;
@@ -889,7 +885,7 @@
 				renderTop = (_scrollAnimation.startTop + progress * _scrollAnimation.topDiff) | 0;
 			}
 
-			_instance.setScrollTop(renderTop);
+			_instance.setScrollTop(renderTop, true);
 		}
 		//Smooth scrolling only if there's no animation running and if we're not on mobile.
 		else if(!_isMobile) {
@@ -913,6 +909,12 @@
 
 				renderTop = (_smoothScrolling.startTop + progress * _smoothScrolling.topDiff) | 0;
 			}
+		}
+
+		//That's were we actually "scroll" on mobile.
+		if(_isMobile && _skrollrBody) {
+			//Set the transform ("scroll it").
+			skrollr.setStyle(_skrollrBody, 'transform', 'translate(0, ' + -(_mobileOffset) + 'px) ' + _translateZ);
 		}
 
 		//Did the scroll position even change?
