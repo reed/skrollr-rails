@@ -104,7 +104,7 @@
 		//Now finally scroll there.
 		if(_animate && !fake) {
 			_skrollrInstance.animateTo(targetTop, {
-				duration: _duration,
+				duration: _duration(_skrollrInstance.getScrollTop(), targetTop),
 				easing: _easing
 			});
 		} else {
@@ -129,9 +129,17 @@
 
 		options = options || {};
 
-		_duration = options.duration || DEFAULT_DURATION;
 		_easing = options.easing || DEFAULT_EASING;
 		_animate = options.animate !== false;
+		_duration = options.duration || DEFAULT_DURATION;
+
+		if(typeof _duration === 'number') {
+			_duration = (function(duration) {
+				return function() {
+					return duration;
+				};
+			}(_duration));
+		}
 
 		//Use event bubbling and attach a single listener to the document.
 		skrollr.addEvent(document, 'click', handleClick);
