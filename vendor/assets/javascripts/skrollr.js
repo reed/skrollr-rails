@@ -19,7 +19,7 @@
 		init: function(options) {
 			return _instance || new Skrollr(options);
 		},
-		VERSION: '0.6.14'
+		VERSION: '0.6.15'
 	};
 
 	//Minify optimization.
@@ -600,6 +600,10 @@
 		}
 	};
 
+	Skrollr.prototype.getMaxScrollTop = function() {
+		return _maxKeyFrame;
+	};
+
 	Skrollr.prototype.on = function(name, fn) {
 		_listeners[name] = fn;
 
@@ -695,6 +699,12 @@
 					_instance.stopAnimateTo();
 
 					initialElement = e.target;
+
+					//We don't want text nodes.
+					while(initialElement.nodeType === 3) {
+						initialElement = initialElement.parentNode;
+					}
+
 					initialTouchY = lastTouchY = currentTouchY;
 					initialTouchX = currentTouchX;
 					initialTouchTime = currentTouchTime;
@@ -718,9 +728,12 @@
 
 					//Check if it was more like a tap (moved less than 7px).
 					if(distance2 < 49) {
-						//It was a tap, click the element.
 						initialElement.focus();
-						initialElement.click();
+
+						//It was a tap, click the element.
+						var clickEvent = document.createEvent('MouseEvent');
+						clickEvent.initEvent('click', true, true);
+						initialElement.dispatchEvent(clickEvent);
 
 						return;
 					}
