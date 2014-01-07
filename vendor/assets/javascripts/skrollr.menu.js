@@ -11,6 +11,7 @@
 
 	var DEFAULT_DURATION = 500;
 	var DEFAULT_EASING = 'sqrt';
+	var DEFAULT_SCALE = 1;
 
 	var MENU_TOP_ATTR = 'data-menu-top';
 	var MENU_OFFSET_ATTR = 'data-menu-offset';
@@ -75,11 +76,24 @@
 		//Now get the targetTop to scroll to.
 		var targetTop;
 
-		//If there's a data-menu-top attribute, it overrides the actuall anchor offset.
-		var menuTop = link.getAttribute(MENU_TOP_ATTR);
+		var menuTop;
+
+		//If there's a handleLink function, it overrides the actual anchor offset.
+		if(_handleLink) {
+			menuTop = _handleLink(link);
+		}
+		//If there's a data-menu-top attribute and no handleLink function, it overrides the actual anchor offset.
+		else {
+			menuTop = link.getAttribute(MENU_TOP_ATTR);
+		}
 
 		if(menuTop !== null) {
-			targetTop = +menuTop;
+			//Is it a percentage offset?
+			if(/p$/.test(menuTop)) {
+				targetTop = (menuTop.slice(0, -1) / 100) * document.documentElement.clientHeight;
+			} else {
+				targetTop = +menuTop * _scale;
+			}
 		} else {
 			var scrollTarget = document.getElementById(href.substr(1));
 
@@ -142,6 +156,8 @@
 		_easing = options.easing || DEFAULT_EASING;
 		_animate = options.animate !== false;
 		_duration = options.duration || DEFAULT_DURATION;
+		_handleLink = options.handleLink;
+		_scale = options.scale || DEFAULT_SCALE;
 
 		if(typeof _duration === 'number') {
 			_duration = (function(duration) {
@@ -174,6 +190,8 @@
 	var _easing;
 	var _duration;
 	var _animate;
+	var _handleLink;
+	var _scale;
 
 	//In case the page was opened with a hash, prevent jumping to it.
 	//http://stackoverflow.com/questions/3659072/jquery-disable-anchor-jump-when-loading-a-page
