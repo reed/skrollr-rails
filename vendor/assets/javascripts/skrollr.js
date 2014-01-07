@@ -19,7 +19,7 @@
 		init: function(options) {
 			return _instance || new Skrollr(options);
 		},
-		VERSION: '0.6.19'
+		VERSION: '0.6.20'
 	};
 
 	//Minify optimization.
@@ -1476,7 +1476,7 @@
 			}
 			//Percentage offset.
 			else if((/p$/).test(value)) {
-				value = (value.substr(0, -1) / 100) * viewportHeight;
+				value = (value.slice(0, -1) / 100) * viewportHeight;
 			}
 
 			copy[prop] = value;
