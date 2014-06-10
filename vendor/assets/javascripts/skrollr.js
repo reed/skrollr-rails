@@ -11,7 +11,7 @@
 	/*
 	 * Global api.
 	 */
-	var skrollr = window.skrollr = {
+	var skrollr = {
 		get: function() {
 			return _instance;
 		},
@@ -19,7 +19,7 @@
 		init: function(options) {
 			return _instance || new Skrollr(options);
 		},
-		VERSION: '0.6.21'
+		VERSION: '0.6.22'
 	};
 
 	//Minify optimization.
@@ -1679,4 +1679,14 @@
 
 	//Animation frame id returned by RequestAnimationFrame (or timeout when RAF is not supported).
 	var _animFrame;
+
+	//Expose skrollr as either a global variable or a require.js module
+	if(typeof define === 'function' && define.amd) {
+		define('skrollr', function () {
+			return skrollr;
+		});
+	} else {
+		window.skrollr = skrollr;
+	}
+
 }(window, document));
