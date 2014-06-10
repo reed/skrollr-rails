@@ -67,7 +67,7 @@
 	//Find all data-attributes. data-[_constant]-[offset]-[anchor]-[anchor].
 	var rxKeyframeAttribute = /^data(?:-(_\w+))?(?:-?(-?\d*\.?\d+p?))?(?:-?(start|end|top|center|bottom))?(?:-?(top|center|bottom))?$/;
 
-	var rxPropValue = /\s*([\w\-\[\]]+)\s*:\s*(.+?)\s*(?:;|$)/gi;
+	var rxPropValue = /\s*(@?[\w\-\[\]]+)\s*:\s*(.+?)\s*(?:;|$)/gi;
 
 	//Easing function names follow the property in square brackets.
 	var rxPropEasing = /^([a-z\-]+)\[(\w+)\]$/;
@@ -357,7 +357,7 @@
 			var emitEvents = false;
 
 			//If we're reseting the counter, remove any old element ids that may be hanging around.
-			if(ignoreID) {
+			if(ignoreID && SKROLLABLE_ID_DOM_PROPERTY in el) {
 				delete el[SKROLLABLE_ID_DOM_PROPERTY];
 			}
 
@@ -658,8 +658,8 @@
 			_reset(_skrollables[skrollableIndex].element);
 		}
 
-		documentElement.style.overflow = body.style.overflow = 'auto';
-		documentElement.style.height = body.style.height = 'auto';
+		documentElement.style.overflow = body.style.overflow = '';
+		documentElement.style.height = body.style.height = '';
 
 		if(_skrollrBody) {
 			skrollr.setStyle(_skrollrBody, 'transform', 'none');
@@ -984,7 +984,12 @@
 							if(hasProp.call(props, key)) {
 								value = _interpolateString(props[key].value);
 
-								skrollr.setStyle(element, key, value);
+								//Set style or attribute.
+								if(key.indexOf('@') === 0) {
+									element.setAttribute(key.substr(1), value);
+								} else {
+									skrollr.setStyle(element, key, value);
+								}
 							}
 						}
 
@@ -1018,7 +1023,12 @@
 
 							value = _interpolateString(value);
 
-							skrollr.setStyle(element, key, value);
+							//Set style or attribute.
+							if(key.indexOf('@') === 0) {
+								element.setAttribute(key.substr(1), value);
+							} else {
+								skrollr.setStyle(element, key, value);
+							}
 						}
 					}
 
@@ -1505,7 +1515,7 @@
 
 		if(_forceHeight && !_isMobile) {
 			//un-"force" the height to not mess with the calculations in _updateDependentKeyFrames (#216).
-			body.style.height = 'auto';
+			body.style.height = '';
 		}
 
 		_updateDependentKeyFrames();
