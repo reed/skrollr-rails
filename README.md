@@ -30,7 +30,7 @@ The skrollr core file. That's all you need for modern desktop browsers.
 //= require skrollr
 ```
 
-##### Skrollr IE compatibility
+##### [Skrollr IE](https://github.com/Prinzhorn/skrollr-ie) Plugin
 
 For IE < 9, include it after the core using conditional comments. The plugin makes IE understand opacity, rgb() and hsl() (the ones with alpha are mapped to them) and it creates a very simple document.querySelector polyfill which only supports ID selectors (using getElementById). Needed if you want to use data-anchor-target.
 
@@ -39,13 +39,22 @@ For IE < 9, include it after the core using conditional comments. The plugin mak
 //= require skrollr.ie
 ```
 
-##### Skrollr menu plugin
+##### [Skrollr Menu](https://github.com/Prinzhorn/skrollr-menu) Plugin
 
 This plugin makes hashlinks scroll nicely to their target position.
 
 ```javascript
 //= require skrollr
 //= require skrollr.menu
+```
+
+##### [Skrollr Stylesheets](https://github.com/Prinzhorn/skrollr-stylesheets) Plugin
+
+This plugin allows separation of skrollr keyframes and the document by putting them inside your stylesheets.
+
+```javascript
+//= require skrollr
+//= require skrollr.stylesheets
 ```
 
 ## Versioning
