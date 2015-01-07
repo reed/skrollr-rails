@@ -15,6 +15,7 @@
 
 	var MENU_TOP_ATTR = 'data-menu-top';
 	var MENU_OFFSET_ATTR = 'data-menu-offset';
+	var MENU_DURATION_ATTR = 'data-menu-duration';
 
 	var skrollr = window.skrollr;
 	var history = window.history;
@@ -65,11 +66,28 @@
 		When the fake flag is set, the link won't change the url and the position won't be animated.
 	*/
 	var handleLink = function(link, fake) {
-		//Don't use the href property (link.href) because it contains the absolute url.
-		var href = link.getAttribute('href');
+		var hash;
 
-		//Check if it's a hashlink.
-		if(!/^#/.test(href)) {
+		//When complexLinks is enabled, we also accept links which do not just contain a simple hash.
+		if(_complexLinks) {
+			//The link points to something completely different.
+			if(link.hostname !== window.location.hostname) {
+				return false;
+			}
+
+			//The link does not link to the same page/path.
+			if(link.pathname !== document.location.pathname) {
+				return false;
+			}
+
+			hash = link.hash;
+		} else {
+			//Don't use the href property (link.href) because it contains the absolute url.
+			hash = link.getAttribute('href');
+		}
+
+		//Not a hash link.
+		if(!/^#/.test(hash)) {
 			return false;
 		}
 
@@ -95,7 +113,7 @@
 				targetTop = +menuTop * _scale;
 			}
 		} else {
-			var scrollTarget = document.getElementById(href.substr(1));
+			var scrollTarget = document.getElementById(hash.substr(1));
 
 			//Ignore the click if no target is found.
 			if(!scrollTarget) {
@@ -112,13 +130,20 @@
 		}
 
 		if(supportsHistory && !fake) {
-			history.pushState({top: targetTop}, '', href);
+			history.pushState({top: targetTop}, '', hash);
+		}
+
+		var menuDuration = parseInt(link.getAttribute(MENU_DURATION_ATTR), 10);
+		var animationDuration = _duration(_skrollrInstance.getScrollTop(), targetTop);
+
+		if(!isNaN(menuDuration)) {
+			animationDuration = menuDuration;
 		}
 
 		//Now finally scroll there.
 		if(_animate && !fake) {
 			_skrollrInstance.animateTo(targetTop, {
-				duration: _duration(_skrollrInstance.getScrollTop(), targetTop),
+				duration: animationDuration,
 				easing: _easing
 			});
 		} else {
@@ -162,6 +187,7 @@
 		_duration = options.duration || DEFAULT_DURATION;
 		_handleLink = options.handleLink;
 		_scale = options.scale || DEFAULT_SCALE;
+		_complexLinks = options.complexLinks === true;
 
 		if(typeof _duration === 'number') {
 			_duration = (function(duration) {
@@ -202,6 +228,7 @@
 	var _animate;
 	var _handleLink;
 	var _scale;
+	var _complexLinks;
 
 	//In case the page was opened with a hash, prevent jumping to it.
 	//http://stackoverflow.com/questions/3659072/jquery-disable-anchor-jump-when-loading-a-page
